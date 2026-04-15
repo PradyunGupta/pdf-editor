@@ -18,6 +18,7 @@ from .storage import StatusStore, ensure_storage, read_document_json, sanitize_f
 ROOT = Path(__file__).resolve().parents[2]
 STORAGE = ensure_storage(ROOT / "storage")
 STATUS = StatusStore()
+FRONTEND_DIST = ROOT / "frontend_dist"
 
 app = FastAPI(title="PDF Editor API", version="0.1.0")
 app.add_middleware(
@@ -28,20 +29,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.mount("/static/pages", StaticFiles(directory=str(STORAGE.pages)), name="pages")
+if (FRONTEND_DIST / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="frontend_assets")
 
 
-@app.get("/")
-async def root() -> dict:
-    return {
-        "name": "PDF Editor API",
-        "status": "ok",
-        "docs_url": "/docs",
-    }
+@app.get("/", include_in_schema=False)
+async def root() -> FileResponse | dict:
+    index = FRONTEND_DIST / "index.html"
+    if index.exists():
+        return FileResponse(index)
+    return {"name": "PDF Editor API", "status": "ok", "docs_url": "/docs"}
 
 
 @app.get("/health")
 async def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def spa_fallback(full_path: str) -> FileResponse:
+    if full_path.startswith(("api/", "docs", "openapi.json", "redoc", "static/")):
+        raise HTTPException(status_code=404, detail="Not found.")
+    index = FRONTEND_DIST / "index.html"
+    if not index.exists():
+        raise HTTPException(status_code=404, detail="Frontend build not found.")
+    return FileResponse(index)
 
 
 def _run_processing(document_id: str, uploaded_path: Path, original_name: str) -> None:
