@@ -1,0 +1,60 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+.app {
+  padding: 16px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.status {
+  color: #444;
+}
+
+.error {
+  color: #b00020;
+}
+
+.page-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.canvas {
+  position: relative;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top left;
+  border: 1px solid #d1d7df;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+}
+
+.block {
+  position: absolute;
+  border: 1px dashed transparent;
+  background: rgba(255, 255, 255, 0.15);
+  resize: none;
+  overflow: hidden;
+  color: #111;
+}
+
+.block:focus {
+  border-color: #1565c0;
+  background: rgba(255, 255, 255, 0.85);
+  outline: none;
+}
+
+.low-confidence {
+  border-color: #ff9800;
+  background: rgba(255, 244, 214, 0.6);
+}
